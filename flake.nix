@@ -1,0 +1,97 @@
+{ inputs =
+    { easy-ps.follows = "purs-nix/easy-ps";
+      make-shell.url = "github:ursi/nix-make-shell/1";
+      nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+      npmlock2nix =
+        { flake = false;
+          url = "github:nix-community/npmlock2nix";
+        };
+
+      purs-nix.url = "github:purs-nix/purs-nix/ps-0.14";
+      utils.url = "github:ursi/flake-utils/8";
+    };
+
+  outputs = { utils, ... }@inputs:
+    with builtins;
+    utils.apply-systems { inherit inputs; }
+      ({ make-shell, pkgs, purs-nix, ... }:
+         let
+           l = p.lib; p = pkgs;
+           easy-ps = import inputs.easy-ps { inherit pkgs; };
+           npmlock2nix = import inputs.npmlock2nix { inherit pkgs; };
+           our-node = p.nodejs-14_x;
+           ps = import ./purs.nix { inherit npmlock2nix our-node p; } purs-nix;
+         in
+         rec
+         { packages =
+             rec
+             { default =
+                 p.stdenv.mkDerivation
+                   rec
+                   { pname = "purescript-docs-search";
+                     inherit (l.importJSON ./package.json) version;
+                     src = ps.modules."Docs.Search.Main".app { name = pname; };
+                     phases = [ "unpackPhase" "installPhase" ];
+
+                     installPhase =
+                       ''
+                       mkdir lib
+
+                       mv bin/${pname} lib
+                       ln -rs lib/${pname} bin
+
+                       ln -s ${
+                         ps.modules."Docs.Search.App".bundle
+                           { esbuild =
+                               { minify = true;
+                                 target = "es2016";
+                               };
+                           }
+                         } lib/docs-search-app.js
+
+                       cp -r ./. $out
+                       '';
+                   };
+             };
+
+           devShell =
+             make-shell
+               { packages =
+                   with p;
+                   [ easy-ps.purs-0_14_9
+                     easy-ps.spago
+                     easy-ps.zephyr
+                     esbuild
+                     nodePackages.purescript-language-server
+                     our-node
+
+                     (ps.command
+                        { bundle =
+                            { esbuild.platform = "node";
+                              esbuild.minify = true;
+                              module = "Docs.Search.Main";
+                            };
+
+                          compile.codegen = "corefn,docs,js";
+                        }
+                     )
+
+                     (ps.command
+                        { name = "pn-app";
+
+                          bundle =
+                            { esbuild.outfile =
+                                "output/Docs.Search.IndexBuilder/docs-search-app.js";
+
+                              module = "Docs.Search.App";
+                            };
+
+                          compile.codegen = "corefn,docs,js";
+                        }
+                     )
+                   ];
+               };
+         }
+      );
+}
