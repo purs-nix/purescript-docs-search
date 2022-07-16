@@ -11,6 +11,8 @@ import Prim hiding (Type)
 import Control.Alt ((<|>))
 import Data.Array ((!!))
 import Data.Array as Array
+import Data.Array.NonEmpty as NEA
+import Data.Either (Either(..))
 import Data.Foldable (foldr)
 import Data.List (List, (:))
 import Data.List as List
@@ -21,6 +23,9 @@ import Data.String.CodeUnits (stripPrefix, stripSuffix, toCharArray)
 import Data.String.Common (split) as String
 import Data.String.Common (toLower)
 import Data.String.Pattern (Pattern(..))
+import Data.String.Regex (match, regex)
+import Data.String.Regex.Flags (noFlags)
+import Effect.Exception.Unsafe (unsafeThrow)
 
 
 newtype Declarations = Declarations (Trie Char (List SearchResult))
@@ -199,8 +204,20 @@ extractPackageName _ Nothing = UnknownPackage
 extractPackageName _ (Just { name }) =
   fromMaybe LocalPackage do
     topLevelDir <- dirs !! 0
-    if topLevelDir == ".spago"
-    then Package <<< PackageName <$> dirs !! 1
+    if topLevelDir == ".spago" then
+      Package <<< PackageName <$> dirs !! 1
+    else if topLevelDir == "" then do
+      secondDir <- dirs !! 1
+      if secondDir == "nix" then do
+        storePath <- dirs !! 3
+        case regex """.{32}-(.+?)(?:-\d+\.\d+\.\d+)?$""" noFlags of
+          Right re -> do
+            case match re storePath of
+              Just matches -> (Package <<< PackageName) <$> join (NEA.index matches 1)
+              _ -> pure UnknownPackage
+          _ -> unsafeThrow "the regex is malformed"
+      else
+        Nothing
     else do
       bowerDirIx <- Array.findIndex (_ == "bower_components") dirs
       Package <<< PackageName <$> dirs !! (bowerDirIx + 1)
