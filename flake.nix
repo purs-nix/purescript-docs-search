@@ -31,7 +31,10 @@
                    rec
                    { pname = "purescript-docs-search";
                      inherit (l.importJSON ./package.json) version;
-                     src = ps.modules."Docs.Search.Main".app { name = pname; };
+                     src =
+                       ps.modules."Docs.Search.Main".app
+                         { name = pname; incremental = false; };
+
                      phases = [ "unpackPhase" "installPhase" ];
 
                      installPhase =
@@ -47,6 +50,8 @@
                                { minify = true;
                                  target = "es2016";
                                };
+
+                             incremental = false;
                            }
                          } lib/docs-search-app.js
 
@@ -54,6 +59,18 @@
                        '';
                    };
              };
+
+           bowers =
+             toString
+               (foldl'
+                  (acc: dep:
+                     if dep.purs-nix-info?bower-json
+                     then [ ''--bower-jsons ${dep.purs-nix-info.bower-json}'' ] ++ acc
+                     else acc
+                  )
+                  []
+                  ps.dependencies
+               );
 
            devShell =
              make-shell
@@ -91,6 +108,9 @@
                         }
                      )
                    ];
+
+                 env.BOWERS = bowers;
+                 aliases.build-index = "purs-nix run build-index $(echo $BOWERS)";
                };
          }
       );
