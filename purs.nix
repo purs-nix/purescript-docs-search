@@ -128,7 +128,7 @@ with builtins;
           web-uievents
         ];
 
-      srcs = [ ./src ];
+      dir = ./.;
 
       foreign."Docs.Search.IndexBuilder".node_modules =
         npmlock2nix.node_modules
