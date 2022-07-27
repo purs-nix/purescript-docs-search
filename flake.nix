@@ -14,7 +14,10 @@
 
   outputs = { utils, ... }@inputs:
     with builtins;
-    utils.apply-systems { inherit inputs; }
+    utils.apply-systems
+      { inherit inputs;
+        systems = [ "x86_64-linux" "x86_64-darwin" ];
+      }
       ({ make-shell, pkgs, ps-tools, purs-nix, ... }:
          let
            l = p.lib; p = pkgs;
@@ -30,6 +33,7 @@
                    rec
                    { pname = "purescript-docs-search";
                      inherit (l.importJSON ./package.json) version;
+
                      src =
                        ps.modules."Docs.Search.Main".app
                          { name = pname; incremental = false; };
@@ -59,19 +63,20 @@
                    };
              };
 
-           bowers =
-             toString
-               (foldl'
-                  (acc: dep:
-                     if dep.purs-nix-info?bower-json
-                     then [ ''--bower-jsons ${dep.purs-nix-info.bower-json}'' ] ++ acc
-                     else acc
-                  )
-                  []
-                  ps.dependencies
-               );
-
            devShell =
+             let
+               bowers =
+                 toString
+                   (foldl'
+                      (acc: dep:
+                         if dep.purs-nix-info?bower-json
+                         then [ ''--bower-jsons ${dep.purs-nix-info.bower-json}'' ] ++ acc
+                         else acc
+                      )
+                      []
+                      ps.dependencies
+                   );
+             in
              make-shell
                { packages =
                    with p;
