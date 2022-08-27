@@ -13,6 +13,7 @@ with builtins;
                      { src.git =
                          { repo = "https://github.com/rnons/purescript-html-parser-halogen.git";
                            rev = "458e492e441fcf69a66911b7b64beea5849e0dad";
+                           ref = "master";
                          };
 
                        info.dependencies = [ self.string-parsers halogen ];
