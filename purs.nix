@@ -1,50 +1,75 @@
 with builtins;
 { npmlock2nix, our-node, p }:
-{ build, ps-pkgs, purs, ... }:
+{ build-set, ps-pkgs, purs, ... }:
   let l = p.lib; in
   purs
     { dependencies =
-        with ps-pkgs;
         let
-          html-parser-halogen =
-            build
-              { name = "html-parser-halogen";
+          extra =
+            build-set
+              (self:
+                 with removeAttrs ps-pkgs (attrNames self);
+                 { html-parser-halogen =
+                     { src.git =
+                         { repo = "https://github.com/rnons/purescript-html-parser-halogen.git";
+                           rev = "458e492e441fcf69a66911b7b64beea5849e0dad";
+                         };
 
-                src.git =
-                  { repo = "https://github.com/rnons/purescript-html-parser-halogen.git";
-                    rev = "458e492e441fcf69a66911b7b64beea5849e0dad";
-                  };
+                       info.dependencies = [ self.string-parsers halogen ];
+                     };
 
-                info.dependencies = [ string-parsers halogen ];
-              };
+                   markdown-it-halogen =
+                     { src.git =
+                         { repo = "https://github.com/nonbili/purescript-markdown-it-halogen.git";
+                           rev = "08c9625015bf04214be14e45230e8ce12f3fa2bf";
+                         };
 
-          string-parsers =
-            build
-              { name = "string-parsers";
+                       info.dependencies = [ markdown-it self.html-parser-halogen ];
+                     };
 
-                src.git =
-                  { repo = "https://github.com/purescript-contrib/purescript-string-parsers.git";
-                    rev = "6e0752ede167479c8d2b38e9a5a1524ecf3046a8";
-                  };
+                   search-trie =
+                     { src.git =
+                         { repo = "https://github.com/klntsky/purescript-search-trie.git";
+                           rev = "e7f7f22486a1dba22171ec885dbc2149dc815119";
+                         };
 
-                info =
-                  { version = "5.0.1";
+                       info.dependencies =
+                         [ prelude
+                           arrays
+                           ordered-collections
+                           lists
+                           foldable-traversable
+                           bifunctors
+                         ];
+                     };
 
-                    dependencies =
-                      [ arrays
-                        bifunctors
-                        control
-                        either
-                        foldable-traversable
-                        lists
-                        maybe
-                        prelude
-                        strings
-                        tailrec
-                      ];
-                  };
-              };
+                   string-parsers =
+                     { src.git =
+                         { repo = "https://github.com/purescript-contrib/purescript-string-parsers.git";
+                           rev = "6e0752ede167479c8d2b38e9a5a1524ecf3046a8";
+                         };
+
+                       info =
+                         { version = "5.0.1";
+
+                           dependencies =
+                             [ arrays
+                               bifunctors
+                               control
+                               either
+                               foldable-traversable
+                               lists
+                               maybe
+                               prelude
+                               strings
+                               tailrec
+                             ];
+                         };
+                     };
+                 }
+              );
         in
+        with ps-pkgs;
         [ aff
           aff-promise
           argonaut-codecs
@@ -58,6 +83,9 @@ with builtins;
           effect
           either
           exceptions
+          extra.markdown-it-halogen
+          extra.search-trie
+          extra.string-parsers
           foldable-traversable
           foreign
           foreign-object
@@ -68,19 +96,6 @@ with builtins;
           js-uri
           lists
           markdown-it
-
-          (build
-             { name = "markdown-it-halogen";
-
-               src.git =
-                 { repo = "https://github.com/nonbili/purescript-markdown-it-halogen.git";
-                   rev = "08c9625015bf04214be14e45230e8ce12f3fa2bf";
-                 };
-
-               info.dependencies = [ markdown-it html-parser-halogen ];
-             }
-          )
-
           maybe
           newtype
           node-buffer
@@ -94,27 +109,6 @@ with builtins;
           prelude
           profunctor
           profunctor-lenses
-
-          (build
-             { name = "search-trie";
-
-               src.git =
-                 { repo = "https://github.com/klntsky/purescript-search-trie.git";
-                   rev = "e7f7f22486a1dba22171ec885dbc2149dc815119";
-                 };
-
-               info.dependencies =
-                 [ prelude
-                   arrays
-                   ordered-collections
-                   lists
-                   foldable-traversable
-                   bifunctors
-                 ];
-             }
-          )
-
-          string-parsers
           strings
           test-unit
           toppokki

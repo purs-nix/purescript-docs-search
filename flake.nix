@@ -36,7 +36,7 @@
 
                      src =
                        ps.modules."Docs.Search.Main".app
-                         { name = pname; incremental = false; };
+                         { name = pname; };
 
                      phases = [ "unpackPhase" "installPhase" ];
 
@@ -53,8 +53,6 @@
                                { minify = true;
                                  target = "es2016";
                                };
-
-                             incremental = false;
                            }
                          } lib/docs-search-app.js
 
