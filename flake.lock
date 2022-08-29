@@ -45,11 +45,11 @@
     "docs-search": {
       "flake": false,
       "locked": {
-        "lastModified": 1658376882,
-        "narHash": "sha256-GV42QnJn0q5d4v3m0qTBCSfvU3a7jnytSh3D3Ch656Y=",
+        "lastModified": 1661752197,
+        "narHash": "sha256-zER3gYd9Liy4vzgHsNpgdXR5R20CbiD8RkXrYp+pbbM=",
         "owner": "purs-nix",
         "repo": "purescript-docs-search",
-        "rev": "8f3ea8cd24b7cf605ce80e040622f273801fc646",
+        "rev": "9b1c0cb5e2dd0b4bd0c4e9ee4cef147d90090e76",
         "type": "github"
       },
       "original": {
@@ -502,11 +502,11 @@
         "utils": "utils_4"
       },
       "locked": {
-        "lastModified": 1661751660,
-        "narHash": "sha256-VCEezRsBge7lI3HllJENmO3nBiptW6qysdAnlr59JKA=",
+        "lastModified": 1661752706,
+        "narHash": "sha256-tMRsTkhTQloAqFP5xp8VciQQYDCL6iiHs8HifhfWYrY=",
         "owner": "purs-nix",
         "repo": "purs-nix",
-        "rev": "34efbb5654d0c4282ef49941950b769e33b85a36",
+        "rev": "1ce930e6f1ec64b8a29b091b2d9c6faf696bf99d",
         "type": "github"
       },
       "original": {
