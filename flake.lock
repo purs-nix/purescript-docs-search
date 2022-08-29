@@ -502,16 +502,16 @@
         "utils": "utils_4"
       },
       "locked": {
-        "lastModified": 1661752706,
-        "narHash": "sha256-tMRsTkhTQloAqFP5xp8VciQQYDCL6iiHs8HifhfWYrY=",
+        "lastModified": 1661787126,
+        "narHash": "sha256-I61bU3LMRspGLFYHX37Kg18SpBJigdDHa/GH3Q+BPzg=",
         "owner": "purs-nix",
         "repo": "purs-nix",
-        "rev": "1ce930e6f1ec64b8a29b091b2d9c6faf696bf99d",
+        "rev": "123e3be9d42ce07201db345717064e622f4aee9e",
         "type": "github"
       },
       "original": {
         "owner": "purs-nix",
-        "ref": "ps-0.14",
+        "ref": "test14",
         "repo": "purs-nix",
         "type": "github"
       }
