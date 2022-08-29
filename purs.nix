@@ -125,32 +125,7 @@ with builtins;
       dir = ./.;
 
       foreign."Docs.Search.IndexBuilder".node_modules =
-        npmlock2nix.node_modules
-          { src =
-              let
-                new-pj =
-                  l.pipe (l.importJSON ./package.json)
-                    [ (pj:
-                         pj
-                         // { devDependencies =
-                                { inherit (pj.devDependencies) glob; };
-                            }
-                      )
-
-                      toJSON
-                      (toFile "package.json")
-                    ];
-              in
-              p.runCommand "patched-package.json" {}
-                ''
-                mkdir $out; cd $out
-
-                # ln breaks when using --impure
-                cp ${new-pj} package.json
-                cp ${./package-lock.json} package-lock.json
-                '';
-          }
-        + /node_modules;
+        npmlock2nix.node_modules { src = ./.; } + /node_modules;
 
       nodejs = our-node;
     }
