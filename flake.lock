@@ -45,11 +45,11 @@
     "docs-search": {
       "flake": false,
       "locked": {
-        "lastModified": 1661754587,
-        "narHash": "sha256-dl78DPXrp+91iXI5SBwroIrMxvirGv51WAiu0ipeDvc=",
+        "lastModified": 1661787609,
+        "narHash": "sha256-jgOl8PKisRmcaHOya3HzArI3eKjVErx+XIBGminh9Zk=",
         "owner": "purs-nix",
         "repo": "purescript-docs-search",
-        "rev": "843f19709cdc6c63c36b870dbf18b081b9af00a6",
+        "rev": "4620575e21886fcbf516d0b43910ba4ead2a60d0",
         "type": "github"
       },
       "original": {
@@ -502,16 +502,16 @@
         "utils": "utils_4"
       },
       "locked": {
-        "lastModified": 1661787564,
-        "narHash": "sha256-I61bU3LMRspGLFYHX37Kg18SpBJigdDHa/GH3Q+BPzg=",
+        "lastModified": 1674243319,
+        "narHash": "sha256-o39rBVSNqchahHrMYNixdlasDro8omlf/n7yQZsdNI8=",
         "owner": "purs-nix",
         "repo": "purs-nix",
-        "rev": "0ecd56d4f7a0e1e3f96712a76680ccb0595c53a7",
+        "rev": "2b7761ffaded363d0d00afe320350cc5c9ee9012",
         "type": "github"
       },
       "original": {
         "owner": "purs-nix",
-        "ref": "ps-0.14",
+        "ref": "ps-0.15",
         "repo": "purs-nix",
         "type": "github"
       }

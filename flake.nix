@@ -8,7 +8,7 @@
         };
 
       ps-tools.follows = "purs-nix/ps-tools";
-      purs-nix.url = "github:purs-nix/purs-nix/ps-0.14";
+      purs-nix.url = "github:purs-nix/purs-nix/ps-0.15";
       utils.url = "github:ursi/flake-utils/8";
     };
 
@@ -18,25 +18,33 @@
       { inherit inputs;
         systems = [ "x86_64-linux" "x86_64-darwin" ];
       }
-      ({ make-shell, pkgs, ps-tools, purs-nix, ... }:
+      ({ make-shell, pkgs, ps-tools, system, ... }:
          let
+           purs-nix =
+             inputs.purs-nix
+               { inherit system;
+                 overlays = [ (import ./overlay.nix) ];
+               };
+
            l = p.lib; p = pkgs;
            npmlock2nix = import inputs.npmlock2nix { inherit pkgs; };
            our-node = p.nodejs-14_x;
            ps = import ./purs.nix { inherit npmlock2nix our-node p; } purs-nix;
+           pname = "purescript-docs-search";
          in
          rec
          { packages =
              rec
              { default =
                  p.stdenv.mkDerivation
-                   rec
-                   { pname = "purescript-docs-search";
+                   { inherit pname;
                      inherit (l.importJSON ./package.json) version;
 
                      src =
-                       ps.modules."Docs.Search.Main".app
-                         { name = pname; };
+                       ps.app
+                         { module = "Docs.Search.Main";
+                           name = pname;
+                         };
 
                      phases = [ "unpackPhase" "installPhase" ];
 
@@ -48,8 +56,10 @@
                        ln -rs lib/${pname} bin
 
                        ln -s ${
-                         ps.modules."Docs.Search.App".bundle
-                           { esbuild =
+                         ps.bundle
+                           { module = "Docs.Search.App";
+
+                             esbuild =
                                { minify = true;
                                  target = "es2016";
                                };
@@ -63,6 +73,8 @@
 
            devShell =
              let
+               utils = import "${inputs.purs-nix}/utils.nix" p;
+
                bowers =
                  toString
                    (map
@@ -77,7 +89,7 @@
                                      dependencies =
                                        foldl'
                                          (acc: dep:
-                                            acc // { ${dep.purs-nix-info.name} = ""; }
+                                            acc // { ${utils.dep-name dep} = ""; }
                                          )
                                          {}
                                          info.dependencies;
@@ -133,7 +145,17 @@
                    ];
 
                  env.BOWERS = bowers;
-                 aliases.build-index = "purs-nix run build-index $(echo $BOWERS)";
+
+                 functions.build-index =
+                   ''
+                   # to compile the code and docs.json's in one go
+                   purs-nix compile
+
+                   purs-nix docs
+                   pn-app bundle
+                   nix build
+                   result/bin/${pname} build-index $(echo $BOWERS)
+                   '';
                };
          }
       );
